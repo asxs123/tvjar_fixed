@@ -1,0 +1,12 @@
+# 忽略构建产物
+build/
+.gradle/
+
+# IDE 文件
+.idea/
+*.iml
+.vscode/
+
+# 系统文件
+.DS_Store
+Thumbs.db

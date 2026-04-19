@@ -1,0 +1,22 @@
+{
+  "name": "CatVod Spider Test Environment",
+  "image": "mcr.microsoft.com/devcontainers/java:21",
+  "features": {
+    "ghcr.io/devcontainers/features/java:1": {
+      "installGradle": false,
+      "version": "21"
+    }
+  },
+  "postCreateCommand": "chmod +x gradlew && java -version && ./gradlew build --no-daemon 2>&1 | tail -20",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "vscjava.vscode-java-pack",
+        "vscjava.vscode-gradle"
+      ],
+      "settings": {
+        "java.compile.nullAnalysisMode": "disabled"
+      }
+    }
+  }
+}
