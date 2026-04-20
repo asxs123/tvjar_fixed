@@ -24,7 +24,7 @@ public class Base extends Spider {
     //ext为外部给的字符串
     public String ext = "";
 
-    public void init(Context context,String ext) {
+    public void init(Context context,String ext) throws Exception {
         super.init(context,ext);
         this.ext=ext;
     }

@@ -1,4 +1,4 @@
-ï»¿@rem
+@rem
 @rem Copyright 2015 the original author or authors.
 @rem
 @rem Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,7 +14,7 @@
 @rem limitations under the License.
 @rem
 
-@if "%DEBUG%"=="" @echo off
+@if "%DEBUG%" == "" @echo off
 @rem ##########################################################################
 @rem
 @rem  Gradle startup script for Windows
@@ -25,8 +25,7 @@
 if "%OS%"=="Windows_NT" setlocal
 
 set DIRNAME=%~dp0
-if "%DIRNAME%"=="" set DIRNAME=.
-@rem This is normally unused
+if "%DIRNAME%" == "" set DIRNAME=.
 set APP_BASE_NAME=%~n0
 set APP_HOME=%DIRNAME%
 
@@ -37,17 +36,16 @@ for %%i in ("%APP_HOME%") do set APP_HOME=%%~fi
 set DEFAULT_JVM_OPTS="-Xmx64m" "-Xms64m"
 
 @rem ============================================================
-@rem  è‡ªåŠ¨æ£€æµ‹é¡¹ç›®å†…ä¾¿æºå¼ JDK (ä¸ä¿®æ”¹ç³»ç»Ÿç¯å¢ƒ)
+@rem  ×Ô¶¯¼ì²âÏîÄ¿ÄÚ±ãĞ¯Ê½ JDK (²»ĞŞ¸ÄÏµÍ³»·¾³)
 @rem ============================================================
-if defined JAVA_HOME goto findJavaFromJavaHome
 
-@rem å°è¯• jdk/current ç¬¦å·é“¾æ¥
-if exist "%APP_HOME%jdk\current\bin\java.exe" (
-    set JAVA_HOME=%APP_HOME%jdk\current
+@rem ¼ì²é jdk ¸ùÄ¿Â¼ÏÂÊÇ·ñÓĞ bin\java.exe
+if exist "%APP_HOME%jdk\bin\java.exe" (
+    set JAVA_HOME=%APP_HOME%jdk
     goto findJavaFromJavaHome
 )
 
-@rem æ‰«æ jdk/jdk* ç›®å½•
+@rem É¨Ãè jdk/jdk* Ä¿Â¼
 for /d %%d in ("%APP_HOME%jdk\jdk*") do (
     if exist "%%d\bin\java.exe" (
         set JAVA_HOME=%%d
@@ -55,11 +53,7 @@ for /d %%d in ("%APP_HOME%jdk\jdk*") do (
     )
 )
 
-@rem ä¹Ÿæ£€æŸ¥ jdk æ ¹ç›®å½•ä¸‹æ˜¯å¦æœ‰ bin\java.exe (éæ ‡å‡†å¸ƒå±€)
-if exist "%APP_HOME%jdk\bin\java.exe" (
-    set JAVA_HOME=%APP_HOME%jdk
-    goto findJavaFromJavaHome
-)
+if defined JAVA_HOME goto findJavaFromJavaHome
 
 @rem ============================================================
 
@@ -70,16 +64,16 @@ if %ERRORLEVEL% equ 0 goto execute
 
 echo.
 echo ================================================================
-echo   æœªæ‰¾åˆ° Java ç¯å¢ƒï¼
+echo   Î´ÕÒµ½ Java »·¾³£¡
 echo ================================================================
 echo.
-echo   è¯·å…ˆè¿è¡Œå®‰è£…è„šæœ¬ä¸‹è½½é¡¹ç›®ä¸“ç”¨ JDK:
+echo   ÇëÏÈÔËĞĞ°²×°½Å±¾ÏÂÔØÏîÄ¿×¨ÓÃ JDK:
 echo     python setup_jdk.py
 echo.
-echo   æˆ–æ‰‹åŠ¨å®‰è£… JDK:
-echo     1. æ‰“å¼€ https://adoptium.net/releases.html
-echo     2. ä¸‹è½½ Temurin 21 LTS / Windows x64 / JDK
-echo     3. è§£å‹åˆ° jdk\ ç›®å½•ä¸‹
+echo   »òÊÖ¶¯°²×° JDK:
+echo     1. ´ò¿ª https://adoptium.net/releases.html
+echo     2. ÏÂÔØ Temurin 21 LTS / Windows x64 / JDK
+echo     3. ½âÑ¹µ½ jdk\ Ä¿Â¼ÏÂ
 echo.
 
 goto fail
@@ -109,15 +103,13 @@ set CLASSPATH=%APP_HOME%\gradle\wrapper\gradle-wrapper.jar
 
 :end
 @rem End local scope for the variables with windows NT shell
-if %ERRORLEVEL% equ 0 goto mainEnd
+if "%ERRORLEVEL%"=="0" goto mainEnd
 
 :fail
 rem Set variable GRADLE_EXIT_CONSOLE if you need the _script_ return code instead of
 rem the _cmd.exe /c_ return code!
-set EXIT_CODE=%ERRORLEVEL%
-if %EXIT_CODE% equ 0 set EXIT_CODE=1
-if not ""=="%GRADLE_EXIT_CONSOLE%" exit %EXIT_CODE%
-exit /b %EXIT_CODE%
+if  not "" == "%GRADLE_EXIT_CONSOLE%" exit 1
+exit /b 1
 
 :mainEnd
 if "%OS%"=="Windows_NT" endlocal

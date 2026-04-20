@@ -1,6 +1,5 @@
 # 忽略构建产物
 build/
-.gradle/
 
 # IDE 文件
 .idea/
@@ -10,3 +9,20 @@ build/
 # 系统文件
 .DS_Store
 Thumbs.db
+jdk/
+*.lnk
+
+# Ignore Gradle project-specific cache directory
+.settings/
+.project
+.gradle
+.gitattributes
+.gradle/
+*.class
+app/src/main/test/*
+app/.classpath
+app/.settings
+app/.project
+# Ignore Gradle build output directory
+build
+bin
