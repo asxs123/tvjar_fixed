@@ -40,7 +40,8 @@ public class Wangfei extends Spider {
     }
 
 
-    public String homeContent(boolean filter) {
+    public String homeContent(boolean filter) throws Exception {
+
         List<Vod> list = new ArrayList<>();
         List<Class> classes = new ArrayList<>();
         Document doc = Jsoup.parse(OkHttp.string(siteUrl, getHeaders()));
@@ -68,7 +69,8 @@ public class Wangfei extends Spider {
     }
 
 
-    public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) {
+    public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) throws Exception {
+
         List<Vod> list = new ArrayList<>();
         String target = siteUrl + String.format("/vod-show-id-%s-page-%s.html", tid, pg);
         Document doc = Jsoup.parse(OkHttp.string(target, getHeaders()));
@@ -85,7 +87,8 @@ public class Wangfei extends Spider {
 
 
 
-    public String detailContent(List<String> ids) {
+    public String detailContent(List<String> ids) throws Exception {
+
         Document doc = Jsoup.parse(OkHttp.string(siteUrl.concat("/vod-detail-id-").concat(ids.get(0)), getHeaders()));
         String name = doc.select(".module-info-heading > h1:nth-child(1) > span:nth-child(1)").text();
         String remarks = doc.select("div.module-info-item:nth-child(5) > div:nth-child(2)").text();
@@ -134,7 +137,8 @@ public class Wangfei extends Spider {
 
 
 
-    public String searchContent(String key, boolean quick) {
+    public String searchContent(String key, boolean quick) throws Exception {
+
         List<Vod> list = new ArrayList<>();
         String target = siteUrl.concat("/vod-search.html?wd=").concat(key);
         Document doc = Jsoup.parse(OkHttp.string(target, getHeaders()));
@@ -148,7 +152,8 @@ public class Wangfei extends Spider {
         return Result.string(list);
     }
 
-    public String playerContent(String flag, String id, List<String> vipFlags) {
+    public String playerContent(String flag, String id, List<String> vipFlags) throws Exception {
+
         return Result.get().url(siteUrl + id).parse().header(getHeaders()).string();
     }
 }

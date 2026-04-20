@@ -2,31 +2,37 @@ plugins {
     id 'application'
 }
 
+repositories {
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
+}
+
 dependencies {
     implementation 'com.squareup.okhttp3:okhttp:4.12.0'
     implementation 'org.jsoup:jsoup:1.17.2'
     implementation 'com.google.code.gson:gson:2.10.1'
     implementation 'org.json:json:20231013'
-
-    // SMB/Samba support
-    implementation 'com.hierynomus:smbj:0.12.2'
 }
 
 application {
     mainClass = 'com.github.catvod.demo.TestRunner'
 }
 
-// tasks.withType(JavaCompile) {
-//     options.encoding = 'UTF-8'
-// }
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
 
-// run {
-//     standardInput = System.in
-// }
+sourceSets.main.java {
+    exclude '**/spider/WebDAV.java'
+    exclude '**/spider/Samba.java'
+    exclude '**/spider/Local.java'
+    exclude '**/spider/PTT.java'
+    exclude '**/bean/webdav/**'
+    exclude '**/bean/samba/**'
+    exclude '**/js/Function.java'
+    exclude '**/js/utils/**'
+}
 
-// compileJava {
-//     options.encoding = 'UTF-8'
-// }
-// compileTestJava {
-//     options.encoding = 'UTF-8'
-// }
+run {
+    standardInput = System.in
+}

@@ -1,5 +1,7 @@
 package android.content;
 
+import android.app.Application;
+
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,6 +13,7 @@ import java.util.prefs.Preferences;
  */
 public class Context {
     private static final Map<String, Object> prefs = new HashMap<>();
+    private static final Application app = new Application();
     private final File dataDir;
 
     public Context() {
@@ -22,8 +25,8 @@ public class Context {
         if (!dataDir.exists()) dataDir.mkdirs();
     }
 
-    public Context getApplicationContext() {
-        return this;
+    public Application getApplicationContext() {
+        return app;
     }
 
     public String getPackageName() {

@@ -27,7 +27,8 @@ public class Kunyu77 extends Spider {
         return headers;
     }
 
-    public String homeContent(boolean filter) {
+    public String homeContent(boolean filter) throws Exception {
+
         try {
             JSONObject result = new JSONObject();
             JSONArray classes = new JSONArray();
@@ -67,7 +68,8 @@ public class Kunyu77 extends Spider {
         return "";
     }
 
-    public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) {
+    public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) throws Exception {
+
         try {
             String url = "http://api.kunyu77.com/api.php/provide/searchFilter?type_id=" + tid
                     + "&pagesize=24&pagenum=1&year=&category=&area=";
@@ -77,7 +79,8 @@ public class Kunyu77 extends Spider {
         return "";
     }
 
-    public String detailContent(List<String> ids) {
+    public String detailContent(List<String> ids) throws Exception {
+
         try {
 
             JSONObject info = new JSONObject();
@@ -174,7 +177,8 @@ public class Kunyu77 extends Spider {
         return "";
     }
 
-    public String searchContent(String key, boolean quick) {
+    public String searchContent(String key, boolean quick) throws Exception {
+
         try {
 
             JSONArray list = new JSONArray();
@@ -222,7 +226,8 @@ public class Kunyu77 extends Spider {
         return "";
     }
 
-    public String playerContent(String flag, String id, List<String> vipFlags) {
+    public String playerContent(String flag, String id, List<String> vipFlags) throws Exception {
+
         try {
             if (Misc.isVip(id)) {
                 JSONObject result = new JSONObject();

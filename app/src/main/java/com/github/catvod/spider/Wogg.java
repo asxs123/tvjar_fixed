@@ -27,7 +27,8 @@ public class Wogg extends Spider {
   public String ali_token = "";
   public String siteUrl = "";
 
-  public void init(Context context,String ext) {
+  public void init(Context context,String ext) throws Exception {
+
     try {
       super.init(context,ext);
       JSONObject json_ext=new JSONObject(ext);
@@ -40,7 +41,8 @@ public class Wogg extends Spider {
     }
   }
 
-  public String homeContent(boolean filter) {
+  public String homeContent(boolean filter) throws Exception {
+
     try {
       // System.out.println(ali_token);
       //
@@ -96,7 +98,8 @@ public class Wogg extends Spider {
     return "";
   }
 
-  public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) {
+  public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) throws Exception {
+
     try {
         // printLog("tid", tid);
       JSONObject result = new JSONObject();
@@ -171,7 +174,8 @@ public class Wogg extends Spider {
     return "";
   }
 
-  public String detailContent(List<String> ids) {
+  public String detailContent(List<String> ids) throws Exception {
+
     try {
         String url=siteUrl+ids.get(0);
         // System.out.println(url);
@@ -211,7 +215,8 @@ public class Wogg extends Spider {
     return "";
   }
 
-  public String searchContent(String key, boolean quick) {
+  public String searchContent(String key, boolean quick) throws Exception {
+
     try {
 
     } catch (Exception e) {
@@ -220,7 +225,8 @@ public class Wogg extends Spider {
     return "";
   }
 
-  public String playerContent(String flag, String id, List<String> vipFlags) {
+  public String playerContent(String flag, String id, List<String> vipFlags) throws Exception {
+
     try {
 
     } catch (Exception e) {

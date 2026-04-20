@@ -23,11 +23,13 @@ public class Xinsj extends Spider {
 
     private static final String siteUrl = "https://www.6080dy3.com";
 
-    public void init(Context context) {
+    public void init(Context context) throws Exception {
+
         super.init(context);
     }
 
-    public String homeContent(boolean filter) {
+    public String homeContent(boolean filter) throws Exception {
+
         try {
             JSONObject result = new JSONObject();
             JSONArray classes = new JSONArray();
@@ -61,7 +63,8 @@ public class Xinsj extends Spider {
         return "";
     }
 
-    public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) {
+    public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) throws Exception {
+
         try {
 
             JSONObject result = new JSONObject();
@@ -101,7 +104,8 @@ public class Xinsj extends Spider {
         return "";
     }
 
-    public String detailContent(List<String> ids) {
+    public String detailContent(List<String> ids) throws Exception {
+
         try {
 
             JSONObject result = new JSONObject();
@@ -177,7 +181,8 @@ public class Xinsj extends Spider {
         return "";
     }
 
-    public String searchContent(String key, boolean quick) {
+    public String searchContent(String key, boolean quick) throws Exception {
+
         try {
 
         } catch (Exception e) {
@@ -186,7 +191,8 @@ public class Xinsj extends Spider {
         return "";
     }
 
-    public String playerContent(String flag, String id, List<String> vipFlags) {
+    public String playerContent(String flag, String id, List<String> vipFlags) throws Exception {
+
         try {
             String url = siteUrl + id;
             String content = OkHttpUtil.string(url, getHeaders(url));

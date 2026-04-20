@@ -49,7 +49,11 @@ public class Douban extends Spider {
         String recommendUrl = "http://api.douban.com/api/v2/subject_collection/subject_real_time_hotest/items" + apikey;
         JSONObject jsonObject = new JSONObject(OkHttp.string(recommendUrl, getHeader()));
         JSONArray items = jsonObject.optJSONArray("subject_collection_items");
-        return Result.string(classes, parseVodListFromJSONArray(items), filter ? Json.parse(OkHttp.string(extend)) : null);
+        com.google.gson.JsonElement filterJson = null;
+        if (filter && extend != null && !extend.isEmpty()) {
+            try { filterJson = Json.parse(OkHttp.string(extend)); } catch (Exception ignored) {}
+        }
+        return Result.string(classes, parseVodListFromJSONArray(items), filterJson);
     }
 
     @Override

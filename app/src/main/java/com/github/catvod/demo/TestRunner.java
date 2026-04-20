@@ -28,7 +28,8 @@ public class TestRunner {
 
     // ====== Configuration ======
     private static String spiderClass = "AppYsV2";
-    private static String extend = "https://api123.adys.app/xgapp.php/v3/";
+    // private static String extend = "https://api123.adys.app/xgapp.php/v3/";
+    private static String extend = "";
     private static boolean filterSwitch = true;
     private static int testTypeIndex = 0;
     private static int testCategoryPage = 1;

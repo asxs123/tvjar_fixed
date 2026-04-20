@@ -46,7 +46,8 @@ public class Ysj extends Spider {
     }
 
     @Override
-    public String homeContent(boolean filter) {
+    public String homeContent(boolean filter) throws Exception {
+
         List<Vod> list = new ArrayList<>();
         List<Class> classes = new ArrayList<>();
         List<Filter> array = new ArrayList<>();
@@ -74,7 +75,8 @@ public class Ysj extends Spider {
     }
 
     @Override
-    public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) {
+    public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) throws Exception {
+
         StringBuilder sb = new StringBuilder(cateUrl);
         if (extend.containsKey("area")) sb.append("/area/").append(extend.get("area"));
         if (tid.length() > 0) sb.append("/class/").append(tid);
@@ -97,7 +99,8 @@ public class Ysj extends Spider {
     }
 
     @Override
-    public String detailContent(List<String> ids) {
+    public String detailContent(List<String> ids) throws Exception {
+
         Document doc = Jsoup.parse(OkHttp.string(detailUrl.concat(ids.get(0)), getHeaders()));
         String name = doc.select("h2.title").text();
         String pic = siteUrl + doc.select("a.vodlist_thumb").attr("data-original");
@@ -144,7 +147,8 @@ public class Ysj extends Spider {
     }
 
     @Override
-    public String searchContent(String key, boolean quick) {
+    public String searchContent(String key, boolean quick) throws Exception {
+
         List<Vod> list = new ArrayList<>();
         String target = searchUrl.concat("?wd=").concat(key).concat("&submit=");
         Document doc = Jsoup.parse(OkHttp.string(target, getHeaders()));
@@ -160,7 +164,8 @@ public class Ysj extends Spider {
     }
 
     @Override
-    public String playerContent(String flag, String id, List<String> vipFlags) {
+    public String playerContent(String flag, String id, List<String> vipFlags) throws Exception {
+
         return Result.get().url(siteUrl + playUrl + id).parse().header(getHeaders()).string();
     }
 }

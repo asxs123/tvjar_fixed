@@ -25,11 +25,13 @@ public class Base extends Spider {
     public String ext = "";
 
     public void init(Context context,String ext) throws Exception {
+
         super.init(context,ext);
         this.ext=ext;
     }
 
-    public String homeContent(boolean filter) {
+    public String homeContent(boolean filter) throws Exception {
+
         try {
           // System.out.println(ext);
 
@@ -39,7 +41,8 @@ public class Base extends Spider {
         return "";
     }
 
-    public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) {
+    public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) throws Exception {
+
         try {
 
         } catch (Exception e) {
@@ -48,7 +51,8 @@ public class Base extends Spider {
         return "";
     }
 
-    public String detailContent(List<String> ids) {
+    public String detailContent(List<String> ids) throws Exception {
+
         try {
 
         } catch (Exception e) {
@@ -57,7 +61,8 @@ public class Base extends Spider {
         return "";
     }
 
-    public String searchContent(String key, boolean quick) {
+    public String searchContent(String key, boolean quick) throws Exception {
+
         try {
 
         } catch (Exception e) {
@@ -66,7 +71,8 @@ public class Base extends Spider {
         return "";
     }
 
-    public String playerContent(String flag, String id, List<String> vipFlags) {
+    public String playerContent(String flag, String id, List<String> vipFlags) throws Exception {
+
         try {
 
         } catch (Exception e) {

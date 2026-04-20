@@ -207,7 +207,8 @@ public class Ddrk extends Spider {
      * @return
      */
     @Override
-    public String homeContent(boolean filter) {
+    public String homeContent(boolean filter) throws Exception {
+
 
         List<Vod> vods = new ArrayList<>();
         String url = siteUrl + '/';
@@ -257,7 +258,8 @@ public class Ddrk extends Spider {
      * @return
      */
     @Override
-    public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) {
+    public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) throws Exception {
+
         String url = "";
         try {
             if (extend != null && extend.size() > 0) {
@@ -370,7 +372,8 @@ public class Ddrk extends Spider {
      * @return
      */
     @Override
-    public String detailContent(List<String> ids) {
+    public String detailContent(List<String> ids) throws Exception {
+
         try {
             // 视频详情url
             String url = ids.get(0);
@@ -536,7 +539,8 @@ public class Ddrk extends Spider {
     }
 
     @Override
-    public String searchContent(String key, boolean quick) {
+    public String searchContent(String key, boolean quick) throws Exception {
+
 
         String url = siteUrl + "?s=" + URLEncoder.encode(key) + "&post_type=post";
         Document doc = Jsoup.parse(OkHttp.string(url, getHeaders(url)));

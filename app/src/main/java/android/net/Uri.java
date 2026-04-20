@@ -3,17 +3,11 @@ package android.net;
 import java.net.URL;
 
 public class Uri {
-    //主机名
     private String host;
-    //协议
     private String scheme;
-    //端口
     private int port;
-    //路径
     private String path;
-    //查询字符串
     private String query;
-    //片段标识符
     private String fragment;
     private String encodedPath;
 
@@ -34,9 +28,7 @@ public class Uri {
         }
     }
 
-    //返回协议，例如http，https
     public String getScheme() { return scheme; }
-    //返回主机名
     public String getHost() { return host; }
     public int getPort() { return port; }
     public String getPath() { return path; }

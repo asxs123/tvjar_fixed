@@ -67,4 +67,13 @@ public class Util {
     public static boolean isEmpty(String str) {
         return str == null || str.isEmpty();
     }
+
+    public static void copy(String text) {
+        try {
+            java.awt.datatransfer.StringSelection ss = new java.awt.datatransfer.StringSelection(text);
+            java.awt.Toolkit.getDefaultToolkit().getSystemClipboard().setContents(ss, null);
+        } catch (Exception e) {
+            System.out.println("[Copy] " + text);
+        }
+    }
 }

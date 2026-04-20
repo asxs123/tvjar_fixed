@@ -37,7 +37,8 @@ public class Btt extends Spider {
     }
 
 
-    public String homeContent(boolean filter) {
+    public String homeContent(boolean filter) throws Exception {
+
         List<Vod> list = new ArrayList<>();
         List<Class> classes = new ArrayList<>();
         Document doc = Jsoup.parse(OkHttp.string(siteUrl, getHeaders()));
@@ -65,7 +66,8 @@ public class Btt extends Spider {
     }
 
 
-    public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) {
+    public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) throws Exception {
+
         List<Vod> list = new ArrayList<>();
         String target = siteUrl + String.format("%s/page/%s", tid, pg);
         Document doc = Jsoup.parse(OkHttp.string(target, getHeaders()));
@@ -80,7 +82,8 @@ public class Btt extends Spider {
     }
 
 
-    public String detailContent(List<String> ids) {
+    public String detailContent(List<String> ids) throws Exception {
+
         Document doc = Jsoup.parse(OkHttp.string(siteUrl.concat("movie/").concat(ids.get(0)).concat(".html"), getHeaders()));
         String name = doc.select(".moviedteail_tt > h1:nth-child(1)").text();
         String remarks = doc.select(".moviedteail_list > li:nth-child(3) > a:nth-child(1)").text();
@@ -130,7 +133,8 @@ public class Btt extends Spider {
     }
 
 
-    public String searchContent(String key, boolean quick) {
+    public String searchContent(String key, boolean quick) throws Exception {
+
         List<Vod> list = new ArrayList<>();
         // String target = siteUrl.concat("xsssearch?q=").concat(key);
         String target = siteUrl.concat("xssssearch?q=").concat(key);
@@ -145,7 +149,8 @@ public class Btt extends Spider {
         return Result.string(list);
     }
 
-    public String playerContent(String flag, String id, List<String> vipFlags) {
+    public String playerContent(String flag, String id, List<String> vipFlags) throws Exception {
+
         return Result.get().url(id).parse().header(getHeaders()).string();
     }
 }

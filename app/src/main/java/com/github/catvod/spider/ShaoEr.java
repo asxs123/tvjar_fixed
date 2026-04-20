@@ -40,12 +40,14 @@ public class ShaoEr extends Spider {
   //ext为外部给的字符串
   public String ext = "";
 
-  public void init(Context context,String ext) {
+  public void init(Context context,String ext) throws Exception {
+
     super.init(context,ext);
     this.ext=ext;
   }
 
-  public String homeContent(boolean filter) {
+  public String homeContent(boolean filter) throws Exception {
+
     try {
 
       JSONObject result = new JSONObject();
@@ -96,7 +98,8 @@ public class ShaoEr extends Spider {
     return "";
   }
 
-  public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) {
+  public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) throws Exception {
+
   // public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) {
     try {
       if (tid.equals("TX")){
@@ -254,7 +257,8 @@ JSONObject jSONObject = new JSONObject();
     return "";
   }
 
-  public String detailContent(List<String> ids) {
+  public String detailContent(List<String> ids) throws Exception {
+
     try {
       JSONObject result = new JSONObject();
       JSONArray list =new JSONArray();
@@ -315,7 +319,8 @@ JSONObject jSONObject = new JSONObject();
     return "";
   }
 
-  public String searchContent(String key, boolean quick) {
+  public String searchContent(String key, boolean quick) throws Exception {
+
     try {
       JSONArray list = new JSONArray();
       JSONObject result = new JSONObject();
@@ -351,7 +356,8 @@ JSONObject jSONObject = new JSONObject();
     return "";
   }
 
-  public String playerContent(String flag, String id, List<String> vipFlags) {
+  public String playerContent(String flag, String id, List<String> vipFlags) throws Exception {
+
     try {
       String StrTime=String.valueOf(System.currentTimeMillis());
       String res= OkHttpUtil.string(id, GetHeaders(StrTime));
