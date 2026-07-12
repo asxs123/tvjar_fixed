@@ -73,15 +73,13 @@ public class Bili extends Spider {
     }
 
     @Override
-    public void init(Context context, String extend) throws Exception {
-
+    public void init(Context context, String extend) {
         this.extend = Json.safeObject(extend);
         setCookie();
     }
 
     @Override
-    public String homeContent(boolean filter) throws Exception {
-
+    public String homeContent(boolean filter) {
         if (extend.has("json")) return OkHttp.string(extend.get("json").getAsString());
         List<Class> classes = new ArrayList<>();
         LinkedHashMap<String, List<Filter>> filters = new LinkedHashMap<>();
@@ -94,8 +92,7 @@ public class Bili extends Spider {
     }
 
     @Override
-    public String homeVideoContent() throws Exception {
-
+    public String homeVideoContent() {
         String api = "https://api.bilibili.com/x/web-interface/popular?ps=20";
         String json = OkHttp.string(api, getHeader());
         Resp resp = Resp.objectFrom(json);
@@ -105,8 +102,7 @@ public class Bili extends Spider {
     }
 
     @Override
-    public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) throws Exception {
-
+    public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) {
         if (tid.endsWith("/{pg}")) {
             LinkedHashMap<String, Object> params = new LinkedHashMap<>();
             params.put("mid", tid.split("/")[0]);
@@ -129,8 +125,7 @@ public class Bili extends Spider {
     }
 
     @Override
-    public String detailContent(List<String> ids) throws Exception {
-
+    public String detailContent(List<String> ids) {
         if (!login) checkLogin();
 
         String[] split = ids.get(0).split("@");
@@ -183,20 +178,17 @@ public class Bili extends Spider {
     }
 
     @Override
-    public String searchContent(String key, boolean quick) throws Exception {
-
+    public String searchContent(String key, boolean quick) {
         return categoryContent(key, "1", true, new HashMap<>());
     }
 
     @Override
-    public String searchContent(String key, boolean quick, String pg) throws Exception {
-
+    public String searchContent(String key, boolean quick, String pg) {
         return categoryContent(key, pg, true, new HashMap<>());
     }
 
     @Override
-    public String playerContent(String flag, String id, List<String> vipFlags) throws Exception {
-
+    public String playerContent(String flag, String id, List<String> vipFlags) {
         String[] ids = id.split("\\+");
         String aid = ids[0];
         String cid = ids[1];
@@ -212,8 +204,7 @@ public class Bili extends Spider {
     }
 
     @Override
-    public Object[] proxy(Map<String, String> params) throws Exception {
-
+    public Object[] proxy(Map<String, String> params) {
         String aid = params.get("aid");
         String cid = params.get("cid");
         String qn = params.get("qn");

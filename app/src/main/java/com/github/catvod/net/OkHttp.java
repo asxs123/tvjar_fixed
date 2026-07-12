@@ -1,7 +1,8 @@
 package com.github.catvod.net;
 
+import android.annotation.SuppressLint;
+
 import com.github.catvod.crawler.Spider;
-import com.github.catvod.crawler.SpiderDebug;
 
 import java.io.IOException;
 import java.security.SecureRandom;
@@ -81,7 +82,7 @@ public class OkHttp {
 
     public static String getLocation(String url, Map<String, String> header) throws IOException {
         return getLocation(client().newBuilder().followRedirects(false).followSslRedirects(false).build()
-                .newCall(new Request.Builder().url(url).headers(Headers.of(header)).build()).execute().headers().toMultimap());
+        .newCall(new Request.Builder().url(url).headers(Headers.of(header)).build()).execute().headers().toMultimap());
     }
 
     public static String getLocation(Map<String, List<String>> headers) {
@@ -115,20 +116,20 @@ public class OkHttp {
 
     private static OkHttpClient.Builder getBuilder() {
         return new OkHttpClient.Builder()
-                .dns(safeDns())
-                .connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
-                .readTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
-                .writeTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
-                .hostnameVerifier((hostname, session) -> true)
-                .sslSocketFactory(getSSLContext().getSocketFactory(), trustAllCertificates());
+        .dns(safeDns())
+        .connectTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
+        .readTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
+        .writeTimeout(TIMEOUT, TimeUnit.MILLISECONDS)
+        .hostnameVerifier((hostname, session) -> true)
+        .sslSocketFactory(getSSLContext().getSocketFactory(), trustAllCertificates());
     }
 
     private static OkHttpClient client(long timeout) {
         return client().newBuilder()
-                .connectTimeout(timeout, TimeUnit.MILLISECONDS)
-                .readTimeout(timeout, TimeUnit.MILLISECONDS)
-                .writeTimeout(timeout, TimeUnit.MILLISECONDS)
-                .build();
+        .connectTimeout(timeout, TimeUnit.MILLISECONDS)
+        .readTimeout(timeout, TimeUnit.MILLISECONDS)
+        .writeTimeout(timeout, TimeUnit.MILLISECONDS)
+        .build();
     }
 
     private static OkHttpClient client() {
@@ -153,18 +154,25 @@ public class OkHttp {
             context.init(null, new TrustManager[]{trustAllCertificates()}, new SecureRandom());
             return context;
         } catch (Throwable e) {
-            throw new RuntimeException(e);
+            return null;
         }
     }
 
+    @SuppressLint({"TrustAllX509TrustManager", "CustomX509TrustManager"})
     private static X509TrustManager trustAllCertificates() {
         return new X509TrustManager() {
             @Override
-            public void checkClientTrusted(X509Certificate[] chain, String authType) {}
+            public void checkClientTrusted(X509Certificate[] chain, String authType) {
+            }
+
             @Override
-            public void checkServerTrusted(X509Certificate[] chain, String authType) {}
+            public void checkServerTrusted(X509Certificate[] chain, String authType) {
+            }
+
             @Override
-            public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[0]; }
+            public X509Certificate[] getAcceptedIssuers() {
+                return new X509Certificate[0];
+            }
         };
     }
 }

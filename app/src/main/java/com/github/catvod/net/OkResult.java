@@ -1,5 +1,7 @@
 package com.github.catvod.net;
 
+import android.text.TextUtils;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +24,15 @@ public class OkResult {
         this.resp = resp;
     }
 
-    public int getCode() { return code; }
-    public String getBody() { return body == null || body.isEmpty() ? "" : body; }
-    public Map<String, List<String>> getResp() { return resp; }
+    public int getCode() {
+        return code;
+    }
+
+    public String getBody() {
+        return TextUtils.isEmpty(body) ? "" : body;
+    }
+
+    public Map<String, List<String>> getResp() {
+        return resp;
+    }
 }

@@ -19,9 +19,9 @@ import com.google.gson.JsonParser;
 
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.Arrays;
+// import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
+// import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,8 +42,7 @@ public class Jianpian extends Spider {
     }
 
     @Override
-    public void init(Context context, String extend) throws Exception {
-
+    public void init(Context context, String extend) {
         this.extend = extend;
         JsonObject domains = new Gson().fromJson(OkHttp.string("https://dns.alidns.com/resolve?name=swrdsfeiujo25sw.cc&type=TXT"), JsonObject.class);
         String parts = domains.getAsJsonArray("Answer").get(0).getAsJsonObject().get("data").getAsString();
@@ -61,8 +60,7 @@ public class Jianpian extends Spider {
     }
 
     @Override
-    public String homeContent(boolean filter) throws Exception {
-
+    public String homeContent(boolean filter) {
         List<Class> classes = new ArrayList<>();
         JsonObject homeCategory = new Gson().fromJson(OkHttp.string(siteUrl + "/api/v2/settings/homeCategory"), JsonObject.class);
         JsonArray dataArray = homeCategory.getAsJsonArray("data");
@@ -74,8 +72,7 @@ public class Jianpian extends Spider {
     }
 
     @Override
-    public String homeVideoContent() throws Exception {
-
+    public String homeVideoContent() {
         List<Vod> list = new ArrayList<>();
         String url = siteUrl + "/api/slide/list?pos_id=88";
         Resp resp = Resp.objectFrom(OkHttp.string(url, getHeader()));
@@ -84,8 +81,7 @@ public class Jianpian extends Spider {
     }
 
     @Override
-    public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) throws Exception {
-
+    public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) {
         if (tid.endsWith("/{pg}")) return searchContent(tid.split("/")[0], pg);
         if (tid.equals("50") || tid.equals("99") || tid.equals("111")) {
             List<Vod> list = new ArrayList<>();
@@ -108,8 +104,7 @@ public class Jianpian extends Spider {
     }
 
     @Override
-    public String detailContent(List<String> ids) throws Exception {
-
+    public String detailContent(List<String> ids) {
         String url = siteUrl + "/api/video/detailv2?id=" + ids.get(0);
         Data data = Detail.objectFrom(OkHttp.string(url, getHeader())).getData();
         Vod vod = data.vod(imgDomain);
@@ -125,25 +120,21 @@ public class Jianpian extends Spider {
     }
 
     @Override
-    public String playerContent(String flag, String id, List<String> vipFlags) throws Exception {
-
+    public String playerContent(String flag, String id, List<String> vipFlags) {
         return Result.get().url(id).header(getHeader()).string();
     }
 
     @Override
-    public String searchContent(String key, boolean quick) throws Exception {
-
+    public String searchContent(String key, boolean quick) {
         return searchContent(key, "1");
     }
 
     @Override
-    public String searchContent(String key, boolean quick, String pg) throws Exception {
-
+    public String searchContent(String key, boolean quick, String pg) {
         return searchContent(key, pg);
     }
 
-    public String searchContent(String key, String pg) throws Exception {
-
+    public String searchContent(String key, String pg) {
         List<Vod> list = new ArrayList<>();
         String url = siteUrl + String.format("/api/v2/search/videoV2?key=%s&category_id=88&page=%s&pageSize=20", URLEncoder.encode(key), pg);
         Search search = Search.objectFrom(OkHttp.string(url, getHeader()));

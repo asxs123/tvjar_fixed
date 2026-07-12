@@ -10,6 +10,7 @@ public class Uri {
     private String query;
     private String fragment;
     private String encodedPath;
+    private String userInfo;
 
     public static Uri parse(String url) {
         try {
@@ -40,6 +41,17 @@ public class Uri {
         if (path == null) return null;
         String[] parts = path.split("/");
         return parts.length > 0 ? parts[parts.length - 1] : null;
+    }
+    public String getUserInfo() { return userInfo; }
+    public Builder buildUpon() {
+        Builder builder = new Builder();
+        builder.scheme = this.scheme;
+        builder.authority = this.host;
+        builder.encodedPath = this.encodedPath;
+        builder.path = this.path;
+        builder.query = this.query;
+        builder.fragment = this.fragment;
+        return builder;
     }
 
     public static String encode(String s) {
@@ -76,6 +88,19 @@ public class Uri {
         public Builder path(String path) { this.path = path; return this; }
         public Builder appendQueryParameter(String key, String val) { return this; }
         public Builder fragment(String fragment) { this.fragment = fragment; return this; }
+        public Builder appendEncodedPath(String newSegment) {
+            if (encodedPath == null) {
+                encodedPath = "/" + newSegment;
+            } else {
+                // 确保中间有 /
+                if (encodedPath.endsWith("/")) {
+                    encodedPath = encodedPath + newSegment;
+                } else {
+                    encodedPath = encodedPath + "/" + newSegment;
+                }
+            }
+            return this;
+        }
         public Uri build() {
             Uri uri = new Uri();
             uri.scheme = this.scheme;

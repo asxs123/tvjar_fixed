@@ -20,14 +20,12 @@ import java.util.List;
 public class Push extends Spider {
 
     @Override
-    public String detailContent(List<String> ids) throws Exception {
-
+    public String detailContent(List<String> ids) {
         return Result.string(vod(ids.get(0)));
     }
 
     @Override
-    public String playerContent(String flag, String id, List<String> vipFlags) throws Exception {
-
+    public String playerContent(String flag, String id, List<String> vipFlags) {
         if (id.contains("://") && id.contains("***")) id = id.replace("***", "#");
         return switch (flag) {
             case "直連" -> Result.get().url(id).subs(getSubs(id)).string();
@@ -52,7 +50,7 @@ public class Push extends Spider {
             vod.setVodPlayFrom("YouTube");
         } else if (url.contains("$")) {
             vod.setVodPlayFrom("直連");
-            vod.setVodPlayUrl(TextUtils.join("#", java.util.Arrays.asList(url.split("\n"))));
+            vod.setVodPlayUrl(TextUtils.join("#", url.split("\n")));
         } else {
             vod.setVodPlayUrl(TextUtils.join("$$$", Arrays.asList(url, url, url)));
             vod.setVodPlayFrom(TextUtils.join("$$$", Arrays.asList("直連", "嗅探", "解析")));

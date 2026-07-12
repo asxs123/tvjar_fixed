@@ -1,5 +1,12 @@
 package com.github.catvod.utils;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
+
+import com.github.catvod.spider.Init;
+
+import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -35,7 +42,7 @@ public class Util {
         if (size <= 0) return "";
         String[] units = new String[]{"bytes", "KB", "MB", "GB", "TB"};
         int digitGroups = (int) (Math.log10(size) / Math.log10(1024));
-        return new java.text.DecimalFormat("#,##0.#").format(size / Math.pow(1024, digitGroups)) + " " + units[digitGroups];
+        return new DecimalFormat("#,##0.#").format(size / Math.pow(1024, digitGroups)) + " " + units[digitGroups];
     }
 
     public static String removeExt(String text) {
@@ -49,8 +56,9 @@ public class Util {
     public static String substring(String text, int num) {
         if (text != null && text.length() > num) {
             return text.substring(0, text.length() - num);
+        } else {
+            return text;
         }
-        return text;
     }
 
     public static String getVar(String data, String param) {
@@ -64,16 +72,9 @@ public class Util {
         return "";
     }
 
-    public static boolean isEmpty(String str) {
-        return str == null || str.isEmpty();
-    }
-
     public static void copy(String text) {
-        try {
-            java.awt.datatransfer.StringSelection ss = new java.awt.datatransfer.StringSelection(text);
-            java.awt.Toolkit.getDefaultToolkit().getSystemClipboard().setContents(ss, null);
-        } catch (Exception e) {
-            System.out.println("[Copy] " + text);
-        }
+        ClipboardManager manager = (ClipboardManager) Init.context().getSystemService(Context.CLIPBOARD_SERVICE);
+        manager.setPrimaryClip(ClipData.newPlainText("fongmi", text));
+        Notify.show("已複製 " + text);
     }
 }

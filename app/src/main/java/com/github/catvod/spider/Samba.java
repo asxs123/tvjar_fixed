@@ -45,23 +45,20 @@ public class Samba extends Spider {
     }
 
     @Override
-    public void init(Context context, String extend) throws Exception {
-
+    public void init(Context context, String extend) {
         this.extend = extend;
         fetchRule();
     }
 
     @Override
-    public String homeContent(boolean filter) throws Exception {
-
+    public String homeContent(boolean filter) {
         List<Class> classes = new ArrayList<>();
         for (Drive drive : drives) classes.add(drive.toType());
         return Result.string(classes);
     }
 
     @Override
-    public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> hashMap) throws Exception {
-
+    public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> hashMap) {
         String key = tid.contains("/") ? tid.substring(0, tid.indexOf("/")) : tid;
         String path = tid.contains("/") ? tid.substring(tid.indexOf("/") + 1) : "";
         Drive drive = getDrive(key);
@@ -75,8 +72,7 @@ public class Samba extends Spider {
     }
 
     @Override
-    public String detailContent(List<String> ids) throws Exception {
-
+    public String detailContent(List<String> ids) {
         String tid = ids.get(0);
         String key = tid.contains("/") ? tid.substring(0, tid.indexOf("/")) : tid;
         String path = tid.contains("/") ? tid.substring(tid.indexOf("/") + 1) : "";
@@ -98,8 +94,7 @@ public class Samba extends Spider {
     }
 
     @Override
-    public String playerContent(String flag, String id, List<String> vipFlags) throws Exception {
-
+    public String playerContent(String flag, String id, List<String> vipFlags) {
         return Result.get().url(id).string();
     }
 

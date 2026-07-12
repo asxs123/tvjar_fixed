@@ -11,6 +11,7 @@ build/
 Thumbs.db
 jdk/
 *.lnk
+TV-jar-test-master
 
 # Ignore Gradle project-specific cache directory
 .settings/

@@ -31,30 +31,26 @@ public class Market extends Spider {
     private List<Data> datas;
 
     @Override
-    public void init(Context context, String extend) throws Exception {
-
+    public void init(Context context, String extend) {
         if (extend.startsWith("http")) extend = OkHttp.string(extend);
         datas = Data.arrayFrom(extend);
     }
 
     @Override
-    public String homeContent(boolean filter) throws Exception {
-
+    public String homeContent(boolean filter) {
         List<Class> classes = new ArrayList<>();
         if (datas.size() > 1) for (int i = 1; i < datas.size(); i++) classes.add(datas.get(i).type());
         return Result.string(classes, datas.get(0).getVod());
     }
 
     @Override
-    public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) throws Exception {
-
+    public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) {
         for (Data data : datas) if (data.getName().equals(tid)) return Result.get().page().vod(data.getVod()).string();
         return "";
     }
 
     @Override
-    public String action(String action) throws Exception {
-
+    public String action(String action) {
         try {
             OkHttp.cancel(TAG);
             String name = Uri.parse(action).getLastPathSegment();

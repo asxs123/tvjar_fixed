@@ -21,14 +21,12 @@ public class MQiTV extends Spider {
     }
 
     @Override
-    public void init(Context context, String extend) throws Exception {
-
+    public void init(Context context, String extend) {
         configs = Config.arrayFrom(extend);
     }
 
     @Override
-    public String liveContent(String url) throws Exception {
-
+    public String liveContent(String url) {
         StringBuilder sb = new StringBuilder();
         for (Config config : getConfigs()) {
             if (config.getData().isEmpty()) continue;
@@ -44,8 +42,7 @@ public class MQiTV extends Spider {
     }
 
     @Override
-    public Object[] proxy(Map<String, String> params) throws Exception {
-
+    public Object[] proxy(Map<String, String> params) {
         String ip = params.get("ip");
         String port = params.get("port");
         String playing = params.get("playing");

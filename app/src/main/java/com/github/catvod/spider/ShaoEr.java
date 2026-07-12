@@ -21,10 +21,11 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Set;
 
-import com.github.catvod.utils.okhttp.OkHttpUtil;
-import com.github.catvod.utils.okhttp.OKCallBack;
+// import com.github.catvod.utils.okhttp.OkHttpUtil;
+// import com.github.catvod.utils.okhttp.OKCallBack;
 import okhttp3.Call;
 import okhttp3.Response;
+import com.github.catvod.net.OkHttp;
 
 import com.github.catvod.crawler.Spider;
 import com.github.catvod.crawler.SpiderDebug;
@@ -100,7 +101,7 @@ public class ShaoEr extends Spider {
 
   public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) throws Exception {
 
-  // public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) {
+  // public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) { 
     try {
       if (tid.equals("TX")){
       //筛选
@@ -114,7 +115,7 @@ public class ShaoEr extends Spider {
 
         String vod_remarks="";
         String url="https://v.qq.com/x/bu/pagesheet/list?_all=1&append=1&channel=child&listpage=1&offset="+((Integer.parseInt(pg) - 1) * 21)+"&pagesize=21&sort=75"+SX;
-        String content=OkHttpUtil.string(url, GetNormalHeaders());
+        String content=OkHttp.string(url, GetNormalHeaders());
         Elements listItems = Jsoup.parse(content).select(".list_item");
         JSONArray jSONArray = new JSONArray();
 
@@ -163,7 +164,7 @@ public class ShaoEr extends Spider {
 
           }
 
-String res=OkHttpUtil.string(url, GetNormalHeaders());
+String res=OkHttp.string(url, GetNormalHeaders());
 System.out.println(res);
 JSONObject jSONObject = new JSONObject();
             try {
@@ -213,7 +214,7 @@ JSONObject jSONObject = new JSONObject();
                     }
                 }
             }
-            String content = OkHttpUtil.string(str3, GetNormalHeaders());
+            String content = OkHttp.string(str3, GetNormalHeaders());
             JSONObject jSONObject = new JSONObject();
             try {
                 JSONArray optJSONArray = new JSONObject(content).optJSONObject("data").optJSONArray("hitDocs");
@@ -271,7 +272,7 @@ JSONObject jSONObject = new JSONObject();
       URLSB.append("&deviceModel="+deviceModel);
       URLSB.append("&app=ylys&deviceBrand="+deviceBrand);
       URLSB.append("&devices=android&deviceVersion="+deviceVersion);
-      String res=OkHttpUtil.string(URLSB.toString(), GetHeaders(StrTime));
+      String res=OkHttp.string(URLSB.toString(), GetHeaders(StrTime));
 
       JSONObject res_obj=new JSONObject(res);
       JSONObject data_obj=res_obj.getJSONObject("data");
@@ -335,7 +336,7 @@ JSONObject jSONObject = new JSONObject();
       URLSB.append("&app=ylys&deviceBrand="+deviceBrand);
       URLSB.append("&devices=android&deviceVersion="+deviceVersion);
       // System.out.println(URLSB.toString());
-      String res=OkHttpUtil.string(URLSB.toString(), GetHeaders(StrTime));
+      String res=OkHttp.string(URLSB.toString(), GetHeaders(StrTime));
       JSONObject jsonres = new JSONObject(res);
       JSONArray arrayres = jsonres.getJSONArray("data").getJSONObject(0).getJSONArray("data");
       for (int i = 0; i < arrayres.length(); i++) {
@@ -360,7 +361,7 @@ JSONObject jSONObject = new JSONObject();
 
     try {
       String StrTime=String.valueOf(System.currentTimeMillis());
-      String res= OkHttpUtil.string(id, GetHeaders(StrTime));
+      String res= OkHttp.string(id, GetHeaders(StrTime));
       JSONObject r_obj=new JSONObject(res);
       JSONObject result=new JSONObject();
       result.put("parse", 0);
@@ -399,7 +400,7 @@ JSONObject jSONObject = new JSONObject();
 
       String str = key + "=" + value;
       String str1 = "http://localhost:8080/?" + str;
-      String res = OkHttpUtil.string(str1, null);
+      String res = OkHttp.string(str1, null);
       System.out.println(res);
     } catch (Exception e) {
     }

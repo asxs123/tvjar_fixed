@@ -1,5 +1,7 @@
 package com.github.catvod.net;
 
+import android.text.TextUtils;
+
 import com.github.catvod.crawler.SpiderDebug;
 import com.github.catvod.utils.Util;
 
@@ -48,8 +50,7 @@ class OkRequest {
     }
 
     private RequestBody getRequestBody() {
-        if (json != null && !json.isEmpty())
-            return RequestBody.create(MediaType.get("application/json; charset=utf-8"), json);
+        if (!TextUtils.isEmpty(json)) return RequestBody.create(MediaType.get("application/json; charset=utf-8"), json);
         FormBody.Builder formBody = new FormBody.Builder();
         if (params != null) for (String key : params.keySet()) formBody.add(key, params.get(key));
         return formBody.build();

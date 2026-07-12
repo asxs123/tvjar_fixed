@@ -15,7 +15,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.IOException;
+// import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -45,6 +45,7 @@ public class Anime1 extends Spider {
         String srcurl = "https://d1zquzjgwo9yb.cloudfront.net/?_=" + a;
         String srcOrignstr = OkHttp.string(srcurl, getHeaders3(srcurl));
         JSONArray srcOrign = new JSONArray(srcOrignstr);
+        System.out.println("srcOrignstr:" + srcOrign);
         int srclen = srcOrign.length();
         for (int i = 0; i < srclen; i++) {
             JSONObject subobj = new JSONObject();

@@ -1,0 +1,653 @@
+package com.github.catvod.demo;
+
+// ==================== 导入说明 ====================
+// Android 上下文对象，CatVod 基于 Android 运行，即使在测试环境也需要模拟一个 Context
+import android.content.Context;
+
+// Spider 接口：所有爬虫（数据源）都必须实现这个接口，它定义了爬虫的标准方法
+import com.github.catvod.crawler.Spider;
+// Init 类：CatVod 的初始化入口，负责配置网络、数据库等基础环境
+import com.github.catvod.spider.Init;
+
+// 以下都是 Java 标准库，用于处理 JSON 数据和集合
+import org.json.JSONArray;   // JSON 数组，如 [item1, item2, ...]
+import org.json.JSONObject;  // JSON 对象，如 {"key": "value"}
+
+import java.util.ArrayList;  // 动态数组，类似 Python 的 list
+import java.util.HashMap;    // 哈希表，类似 Python 的 dict / JavaScript 的 Map
+import java.util.List;       // 列表接口
+import java.util.Map;        // 映射接口
+import java.util.Scanner;    // 控制台输入读取器，用于交互模式
+
+/**
+ * =====================================================================
+ * CatVod 爬虫测试运行器 (TestRunner)
+ * =====================================================================
+ *
+ * 【这个文件是什么？】
+ * 这是一个独立的 Java 程序（有 main 方法），用来在电脑上测试 CatVod 的爬虫（Spider）。
+ * CatVod 是一个开源的视频聚合应用，它通过"爬虫"从各种网站抓取视频资源。
+ * 每个爬虫就是一个 Java 类，实现了 Spider 接口。
+ *
+ * 【为什么要单独测试？】
+ * 直接在手机/电视上调试爬虫很麻烦，这个工具让你在电脑上就能：
+ *   1. 快速测试某个爬虫的各个功能（首页、分类、详情、播放、搜索）
+ *   2. 查看爬虫返回的 JSON 数据是否正确
+ *   3. 交互式地逐个命令调试
+ *
+ * 【Spider 接口的核心方法（你必须了解）】
+ *   - init(context, extend)       → 初始化爬虫，传入配置参数
+ *   - homeContent(filter)         → 获取首页内容（分类列表 + 推荐视频）
+ *   - categoryContent(tid, pg, filter, extend) → 获取某个分类的视频列表（分页）
+ *   - detailContent(ids)          → 获取视频详情（播放源、剧集列表）
+ *   - playerContent(flag, id, vipFlags) → 获取视频播放地址（真实视频 URL）
+ *   - searchContent(keyword, quick)     → 搜索视频
+ *
+ * 【运行方式】
+ *   命令行自动测试：./gradlew run --args="SpiderName [extend_url]"
+ *   交互模式（无参数）：./gradlew run
+ *
+ * 【CatVod 数据格式约定】
+ *   所有方法返回的都是 JSON 字符串，格式大致如下：
+ *
+ *   homeContent 返回：
+ *   {
+ *     "class": [{"type_id": "1", "type_name": "电影"}, ...],  // 分类列表
+ *     "list":  [{"vod_id": "123", "vod_name": "xxx", ...}]   // 推荐视频
+ *   }
+ *
+ *   categoryContent 返回：
+ *   {
+ *     "list": [{"vod_id": "123", "vod_name": "xxx", ...}],  // 视频列表
+ *     "page": 1, "pagecount": 10, "limit": 20, "total": 200  // 分页信息
+ *   }
+ *
+ *   detailContent 返回：
+ *   {
+ *     "list": [{
+ *       "vod_name": "xxx",
+ *       "vod_play_from": "源1$$$源2",           // 播放源名称，用 $$$ 分隔
+ *       "vod_play_url": "第1集$url1#第2集$url2$$$第1集$url3"  // 播放地址，源之间 $$$ 分隔，集之间 # 分隔，集名和地址之间 $ 分隔
+ *     }]
+ *   }
+ *
+ *   playerContent 返回：
+ *   {
+ *     "parse": 0,           // 0=直接播放, 1=需要二次解析
+ *     "playUrl": "https://..."  // 视频播放地址
+ *   }
+ *
+ *   searchContent 返回：
+ *   {
+ *     "list": [{"vod_id": "123", "vod_name": "xxx", ...}]
+ *   }
+ *
+ * =====================================================================
+ */
+public class TestRunner {
+
+    // ==================== 配置区域 ====================
+    // 这些变量控制测试行为，你可以修改它们来测试不同的爬虫和参数
+
+    /**
+     * 要测试的爬虫类名（不含包名前缀）
+     * 例如 "AppYsV2" 实际对应类 com.github.catvod.spider.AppYsV2
+     * 这个名字会通过 loadSpider() 方法动态加载对应的类
+     */
+    private static String spiderClass = "AppYsV2";
+
+    /**
+     * extend 参数：爬虫的配置地址，通常是 API 接口的 URL
+     * 不同爬虫需要不同的 extend，比如 AppYsV2 需要一个 API 地址
+     * 这个值会在调用 spider.init(context, extend) 时传给爬虫
+     * 留空表示不传配置，爬虫会使用默认值或要求交互输入
+     */
+    private static String extend = "";
+
+    /**
+     * filterSwitch：是否启用筛选功能
+     * 设为 true 时，homeContent 返回的数据会包含筛选条件（如按年份、地区筛选）
+     * 一般保持 true 即可
+     */
+    private static boolean filterSwitch = true;
+
+    /**
+     * testTypeIndex：测试用的分类索引
+     * homeContent 返回的分类列表中，选择第几个分类来测试 categoryContent
+     * 0 = 第一个分类（通常是"电影"），1 = 第二个，以此类推
+     */
+    private static int testTypeIndex = 0;
+
+    /**
+     * testCategoryPage：测试用的页码
+     * categoryContent 是分页的，这里指定测试第几页
+     */
+    private static int testCategoryPage = 1;
+
+    /**
+     * testVodIndex：测试用的视频索引
+     * categoryContent 返回的视频列表中，选择第几个视频来测试 detailContent
+     */
+    private static int testVodIndex = 0;
+
+    /**
+     * testVodFromIndex：测试用的播放源索引
+     * 一个视频可能有多个播放源（如"量子线路"、"超清线路"），这里选择第几个
+     */
+    private static int testVodFromIndex = 0;
+
+    /**
+     * searchSwitch：是否在自动测试中执行搜索
+     * 设为 true 会在自动测试流程的最后执行搜索测试
+     */
+    private static boolean searchSwitch = true;
+
+    /**
+     * searchKeyword：搜索关键词
+     * 搜索测试时使用的关键字
+     */
+    private static String searchKeyword = "斗";
+
+    // ==================== 程序入口 ====================
+
+    /**
+     * main 方法 —— 程序的入口点
+     *
+     * 整体流程：
+     * 1. 解析命令行参数（爬虫名、extend 地址）
+     * 2. 初始化 CatVod 运行环境（Init.init）
+     * 3. 动态加载指定的爬虫类（loadSpider）
+     * 4. 根据是否有参数决定运行模式：
+     *    - 有参数 → 自动测试模式（runFullTest），按顺序测试所有功能
+     *    - 无参数 → 交互模式（interactiveMode），手动输入命令调试
+     *
+     * @param args 命令行参数，args[0]=爬虫名, args[1]=extend地址（可选）
+     */
+    public static void main(String[] args) {
+        // 打印启动横幅，纯装饰用
+        System.out.println("╔══════════════════════════════════════════╗");
+        System.out.println("║       CatVod Spider Test Runner          ║");
+        System.out.println("║       Compatible with CatVodSpider-larn  ║");
+        System.out.println("╚══════════════════════════════════════════╝");
+        System.out.println();
+
+        // ---- 第一步：解析命令行参数 ----
+        // 如果传了参数，覆盖默认配置
+        if (args.length >= 1) {
+            spiderClass = args[0];  // 第一个参数 = 爬虫类名
+        }
+        if (args.length >= 2) {
+            extend = args[1];       // 第二个参数 = extend 配置地址
+        }
+
+        // ---- 第二步：初始化 CatVod 运行环境 ----
+        // Context 是 Android 的上下文对象，这里用的是自定义的模拟实现
+        // Init.init() 会初始化 CatVod 所需的基础设施（网络、数据库等）
+        Context context = new Context();
+        Init.init(context);
+
+        // ---- 第三步：动态加载爬虫类 ----
+        // loadSpider 通过 Java 反射机制，根据类名字符串找到并实例化对应的爬虫
+        Spider spider = loadSpider(spiderClass);
+        if (spider == null) {
+            // 加载失败，打印可用的爬虫列表帮助用户选择
+            System.out.println("❌ 加载爬虫失败： " + spiderClass);
+            printAvailableSpiders();
+            return;  // 退出程序
+        }
+
+        System.out.println("✅ 加载爬虫成功： " + spiderClass);
+        System.out.println("📦 扩展： " + extend);
+        System.out.println();
+
+        // ---- 第四步：选择运行模式 ----
+        if (args.length == 0) {
+            // 没有参数 → 交互模式：用户手动输入命令逐个测试
+            interactiveMode(spider, context);
+            return;
+        }
+
+        // 有参数 → 自动测试模式：按顺序测试所有功能
+        try {
+            runFullTest(spider, context);
+        } catch (Exception e) {
+            System.out.println("❌ Error: " + e.getMessage());
+            e.printStackTrace();  // 打印完整的错误堆栈，方便调试
+        }
+
+        // 退出程序（对于 Gradle run 任务，需要显式调用 System.exit）
+        System.exit(0);
+    }
+
+    // ==================== 自动测试模式 ====================
+
+    /**
+     * 自动测试方法 —— 按顺序测试爬虫的所有核心功能
+     *
+     * 测试流程（模拟用户使用 CatVod 的完整过程）：
+     *
+     *   初始化 → 首页 → 分类列表 → 视频详情 → 播放地址 → 搜索
+     *    init   homeContent  categoryContent  detailContent  playerContent  searchContent
+     *
+     * 每一步都会打印爬虫返回的 JSON 数据，方便检查是否正确。
+     *
+     * @param spider  已加载的爬虫实例
+     * @param context Android 上下文
+     * @throws Exception 爬虫调用过程中可能抛出的各种异常（网络错误、解析错误等）
+     */
+    private static void runFullTest(Spider spider, Context context) throws Exception {
+
+        // ==== 测试1: 初始化爬虫 ====
+        // spider.init() 会把 extend 地址传给爬虫，爬虫通常在这里读取配置、初始化网络请求等
+        System.out.println("═════════ 初始化 ═════════");
+        spider.init(context, extend);
+        System.out.println("✅ 爬虫初始化成功\n");
+
+        // ==== 测试2: 获取首页内容 ====
+        // homeContent 返回视频分类列表 + 每个分类的推荐视频
+        // 参数 filter=true 表示同时返回筛选条件（年份、地区等）
+        System.out.println("═════════ 测试首页内容(homeContent) ═════════");
+        String homeResult = spider.homeContent(filterSwitch);
+        printJson("homeContent", homeResult);
+
+        // 从首页结果中解析出分类列表（type_id 和 type_name）
+        // type_id 是分类的唯一标识，后续 categoryContent 要用它
+        List<String> typeIds = new ArrayList<>();
+        String firstTypeId = "";
+        try {
+            JSONObject home = new JSONObject(homeResult);           // 把 JSON 字符串解析为对象
+            JSONArray classes = home.getJSONArray("class");         // 取出 "class" 数组
+            for (int i = 0; i < classes.length(); i++) {
+                String tid = classes.getJSONObject(i).getString("type_id");     // 分类ID
+                String tname = classes.getJSONObject(i).getString("type_name"); // 分类名称，如"电影"、"电视剧"
+                typeIds.add(tid);
+                System.out.println("  📂 " + tname + " [" + tid + "]");
+            }
+            // 选择要测试的分类（根据 testTypeIndex 配置）
+            if (!typeIds.isEmpty()) {
+                firstTypeId = typeIds.get(Math.min(testTypeIndex, typeIds.size() - 1));
+            }
+        } catch (Exception e) {
+            System.out.println("  ⚠️ 未读取到分类列表 ");
+        }
+        System.out.println();
+
+        // ==== 测试3: 获取分类视频列表 ====
+        // categoryContent 返回某个分类下的视频列表（分页）
+        // 参数：分类ID, 页码, 是否启用筛选, 筛选条件（这里传空 Map）
+        if (!firstTypeId.isEmpty()) {
+            System.out.println("═════════ 测试分类内容(categoryContent) ═════════");
+            System.out.println("  Category: " + firstTypeId + ", Page: " + testCategoryPage);
+            HashMap<String, String> extendMap = new HashMap<>();  // 筛选条件，为空表示不筛选
+            String catResult = spider.categoryContent(firstTypeId,
+                    String.valueOf(testCategoryPage), true, extendMap);
+            printJson("categoryContent", catResult);
+
+            // 从分类结果中解析出视频列表
+            // vod_id 是视频的唯一标识，后续 detailContent 要用它
+            List<String> vodIds = new ArrayList<>();
+            try {
+                JSONObject cat = new JSONObject(catResult);
+                JSONArray list = cat.getJSONArray("list");  // 视频列表
+                // 只打印前10个，避免输出太多
+                for (int i = 0; i < Math.min(list.length(), 10); i++) {
+                    JSONObject vod = list.getJSONObject(i);
+                    String name = vod.optString("vod_name", "?");  // 视频名称
+                    String id = vod.optString("vod_id", "?");      // 视频ID
+                    vodIds.add(id);
+                    System.out.println("  🎬 " + name + " [" + id + "]");
+                }
+            } catch (Exception e) {
+                System.out.println("  ⚠️ 未读取到视频列表 ");
+            }
+            System.out.println();
+
+            // ==== 测试4: 获取视频详情 ====
+            // detailContent 返回视频的详细信息，最重要的是播放源和剧集列表
+            // 参数是一个包含 vod_id 的列表（支持批量查询，但一般只传一个）
+            if (!vodIds.isEmpty()) {
+                String testVodId = vodIds.get(Math.min(testVodIndex, vodIds.size() - 1));
+                System.out.println("═════════ 测试视频详情(detailContent) ═════════");
+                System.out.println("  你测试的链接是: " + testVodId);
+                List<String> ids = new ArrayList<>();
+                ids.add(testVodId);
+                String detailResult = spider.detailContent(ids);
+                printJson("detailContent", detailResult);
+
+                // 从详情中解析播放源和剧集
+                // vod_play_from 格式: "源1名称$$$源2名称"  用 $$$ 分隔不同播放源
+                // vod_play_url 格式: "集1名$url1#集2名$url2$$$集1名$url3#集2名$url4"  源间 $$$ 分隔，集间 # 分隔，集名和地址间 $ 分隔
+                //
+                // 举例：
+                //   vod_play_from = "量子线路$$$超清线路"
+                //   vod_play_url  = "第1集$abc123#第2集$def456$$$第1集$xyz789#第2集$uvw012"
+                //
+                // 解析后：
+                //   源0 "量子线路" → 第1集=abc123, 第2集=def456
+                //   源1 "超清线路" → 第1集=xyz789, 第2集=uvw012
+
+                String playFlag = "";  // 选中的播放源名称
+                String playId = "";    // 选中的剧集播放ID
+                try {
+                    JSONObject detail = new JSONObject(detailResult);
+                    JSONArray list = detail.getJSONArray("list");
+                    if (list.length() > 0) {
+                        JSONObject vod = list.getJSONObject(0);  // 取第一个视频（一般只有一个）
+                        String playFrom = vod.optString("vod_play_from", "");  // 播放源名称字符串
+                        String playUrl = vod.optString("vod_play_url", "");    // 播放地址字符串
+
+                        // 用 $$$ 分割出各个播放源
+                        String[] froms = playFrom.split("\\$\\$\\$");
+                        // 用 $$$ 分割出各个源的剧集列表
+                        String[] urls = playUrl.split("\\$\\$\\$");
+
+                        // 遍历每个播放源，打印其下的所有剧集
+                        for (int i = 0; i < froms.length; i++) {
+                            System.out.println("  📺 Source: " + froms[i]);
+                            if (urls.length > i) {
+                                // 用 # 分割出单个剧集
+                                String[] episodes = urls[i].split("#");
+                                for (String ep : episodes) {
+                                    // 用 $ 分割出剧集名和播放ID
+                                    String[] parts = ep.split("\\$");
+                                    System.out.println("    ▶ " + (parts.length > 0 ? parts[0] : ep));
+                                }
+                            }
+                        }
+
+                        // 选择一个播放源和第一集，用于后续的 playerContent 测试
+                        int fromIdx = Math.min(testVodFromIndex, froms.length - 1);
+                        if (froms.length > 0) playFlag = froms[fromIdx];  // 播放源名称
+                        if (urls.length > fromIdx) {
+                            String[] episodes = urls[fromIdx].split("#");  // 取该源的第一集
+                            if (episodes.length > 0) {
+                                String[] parts = episodes[0].split("\\$");
+                                // parts[0] = 剧集名称, parts[1] = 播放ID
+                                // 如果没有 $ 分隔符，则整个字符串就是播放ID
+                                playId = parts.length > 1 ? parts[1] : parts[0];
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    System.out.println("  ⚠️ 未读取到播放信息 ");
+                }
+                System.out.println();
+
+                // ==== 测试5: 获取播放地址 ====
+                // playerContent 返回视频的真实播放地址
+                // 参数：播放源名称(flag), 播放ID, VIP标志列表
+                // 返回的 JSON 中 playUrl 就是最终可以播放的视频 URL
+                if (!playFlag.isEmpty() && !playId.isEmpty()) {
+                    System.out.println("═════════ playerContent ═════════");
+                    System.out.println("  Flag: " + playFlag + ", ID: " + playId);
+                    List<String> vipFlags = new ArrayList<>();  // VIP 标志，用于识别需要 VIP 的源
+                    String playerResult = spider.playerContent(playFlag, playId, vipFlags);
+                    printJson("playerContent", playerResult);
+                    System.out.println();
+                }
+            }
+        }
+
+        // ==== 测试6: 搜索 ====
+        // searchContent 根据关键词搜索视频
+        // 参数：关键词, quick=true 表示快速搜索
+        System.out.println("═════════ searchContent ═════════");
+        System.out.println("  Keyword: " + searchKeyword);
+        String searchResult = spider.searchContent(searchKeyword, true);
+        printJson("searchContent", searchResult);
+        System.out.println();
+
+        System.out.println("✅ Test completed!");
+    }
+
+    // ==================== 交互模式 ====================
+
+    /**
+     * 交互模式 —— 用户手动输入命令来逐个测试爬虫功能
+     *
+     * 与自动测试不同，交互模式让你可以：
+     *   - 指定具体的分类ID、视频ID来测试
+     *   - 随时切换爬虫
+     *   - 修改 extend 配置
+     *   - 反复测试某个功能而不必跑全部流程
+     *
+     * 支持的命令：
+     *   home [filter]       → 测试首页，filter 可选 true/false
+     *   cat <tid> [page]    → 测试分类列表，tid=分类ID, page=页码
+     *   detail <id>         → 测试视频详情，id=视频ID
+     *   player <flag> <id>  → 测试播放地址，flag=播放源名, id=播放ID
+     *   search <keyword>    → 测试搜索
+     *   spider <name>       → 切换到另一个爬虫
+     *   extend <value>      → 修改 extend 配置并重新初始化
+     *   exit                → 退出
+     *
+     * @param spider  已加载的爬虫实例
+     * @param context Android 上下文
+     */
+    private static void interactiveMode(Spider spider, Context context) {
+        Scanner scanner = new Scanner(System.in);  // 创建控制台输入读取器
+        try {
+            // 先初始化爬虫
+            spider.init(context, extend);
+            System.out.println("✅ Spider initialized. Available commands:");
+            System.out.println("  home [filter]       - Test homeContent (true/false)");
+            System.out.println("  cat <tid> [page]    - Test categoryContent");
+            System.out.println("  detail <id>         - Test detailContent");
+            System.out.println("  player <flag> <id>  - Test playerContent");
+            System.out.println("  search <keyword>    - Test searchContent");
+            System.out.println("  spider <name>       - Switch spider");
+            System.out.println("  extend <value>      - Change extend");
+            System.out.println("  exit                - Quit");
+            System.out.println();
+
+            // 主循环：持续读取用户输入并执行对应命令
+            while (true) {
+                System.out.print("> ");  // 打印提示符
+                String line = scanner.nextLine().trim();  // 读取一行输入
+                if (line.isEmpty()) continue;             // 空行跳过
+
+                // 用空格分割输入，最多分成3部分（命令 + 最多2个参数）
+                // 例如 "search 动画 片" → ["search", "动画", "片"]
+                String[] parts = line.split("\\s+", 3);
+                String cmd = parts[0].toLowerCase();  // 命令统一转小写，不区分大小写
+
+                try {
+                    switch (cmd) {
+                        // ---- home 命令：测试首页 ----
+                        case "home":
+                            // 如果用户指定了 filter 参数就用指定的，否则默认 true
+                            boolean filter = parts.length > 1 ? Boolean.parseBoolean(parts[1]) : true;
+                            printJson("homeContent", spider.homeContent(filter));
+                            break;
+
+                        // ---- cat 命令：测试分类视频列表 ----
+                        case "cat":
+                            if (parts.length < 2) {
+                                System.out.println("Usage: cat <tid> [page]");
+                                break;
+                            }
+                            String tid = parts[1];                                    // 分类ID（必须）
+                            String pg = parts.length > 2 ? parts[2] : "1";           // 页码（可选，默认1）
+                            printJson("categoryContent", spider.categoryContent(tid, pg, true, new HashMap<>()));
+                            break;
+
+                        // ---- detail 命令：测试视频详情 ----
+                        case "detail":
+                            if (parts.length < 2) {
+                                System.out.println("Usage: detail <id>");
+                                break;
+                            }
+                            List<String> ids = new ArrayList<>();
+                            ids.add(parts[1]);  // 视频ID
+                            printJson("detailContent", spider.detailContent(ids));
+                            break;
+
+                        // ---- player 命令：测试播放地址 ----
+                        case "player":
+                            if (parts.length < 3) {
+                                System.out.println("Usage: player <flag> <id>");
+                                break;
+                            }
+                            // flag = 播放源名称, id = 播放ID
+                            printJson("playerContent", spider.playerContent(parts[1], parts[2], new ArrayList<>()));
+                            break;
+
+                        // ---- search 命令：测试搜索 ----
+                        case "search":
+                            if (parts.length < 2) {
+                                System.out.println("Usage: search <keyword>");
+                                break;
+                            }
+                            // 支持多词搜索，如 "search 动画 片" 会合并为 "动画 片"
+                            String keyword = parts.length > 2 ? parts[1] + " " + parts[2] : parts[1];
+                            printJson("searchContent", spider.searchContent(keyword, true));
+                            break;
+
+                        // ---- spider 命令：切换爬虫 ----
+                        case "spider":
+                            if (parts.length < 2) {
+                                System.out.println("Usage: spider <ClassName>");
+                                break;
+                            }
+                            Spider newSpider = loadSpider(parts[1]);  // 尝试加载新爬虫
+                            if (newSpider != null) {
+                                spider = newSpider;          // 替换当前爬虫引用
+                                spiderClass = parts[1];      // 更新类名记录
+                                spider.init(context, extend); // 用当前 extend 初始化新爬虫
+                                System.out.println("✅ Switched to: " + spiderClass);
+                            } else {
+                                System.out.println("❌ Spider not found: " + parts[1]);
+                            }
+                            break;
+
+                        // ---- extend 命令：修改 extend 配置 ----
+                        case "extend":
+                            if (parts.length < 2) {
+                                System.out.println("Usage: extend <value>");
+                                break;
+                            }
+                            extend = parts[1];               // 更新 extend 值
+                            spider.init(context, extend);    // 用新 extend 重新初始化爬虫
+                            System.out.println("✅ Extend updated");
+                            break;
+
+                        // ---- exit/quit 命令：退出 ----
+                        case "exit":
+                        case "quit":
+                            return;  // 退出方法，程序结束
+
+                        default:
+                            System.out.println("Unknown command: " + cmd);
+                    }
+                } catch (Exception e) {
+                    // 单个命令出错不影响继续使用，打印错误后继续循环
+                    System.out.println("❌ Error: " + e.getMessage());
+                    e.printStackTrace();
+                }
+                System.out.println();
+            }
+        } catch (Exception e) {
+            // 初始化阶段的错误比较严重，直接打印退出
+            System.out.println("❌ Init error: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    // ==================== 工具方法 ====================
+
+    /**
+     * 动态加载爬虫类 —— 通过类名字符串实例化爬虫
+     *
+     * 这是 Java 反射（Reflection）的经典应用：
+     * 1. 根据传入的类名，拼出完整的类路径（包名 + 类名）
+     * 2. 用 Class.forName() 在运行时查找这个类
+     * 3. 用 getDeclaredConstructor().newInstance() 创建实例
+     *
+     * 为什么要用反射？
+     * 因为爬虫类名是在运行时由用户指定的，编译时无法确定具体要加载哪个类。
+     * 反射让我们可以像 "AppYsV2" 这样的字符串就加载对应的类。
+     *
+     * @param name 爬虫类名（不含包名），如 "AppYsV2"
+     * @return Spider 实例，加载失败返回 null
+     */
+    private static Spider loadSpider(String name) {
+        // 搜索路径：爬虫类所在的包名列表
+        // 有些爬虫可能在不同的包下，这里列出来方便查找
+        String[] packages = {
+            "com.github.catvod.spider.",   // 主要的爬虫包
+            // "com.github.catvod.spider."    // 重复了，原代码如此（可以添加其他包路径）
+        };
+        for (String pkg : packages) {
+            try {
+                // Class.forName() → 根据完整类名查找类
+                // getDeclaredConstructor() → 获取无参构造方法
+                // newInstance() → 创建实例
+                // 例如：Class.forName("com.github.catvod.spider.AppYsV2") → 找到 AppYsV2 类
+                Class<?> cls = Class.forName(pkg + name);
+                return (Spider) cls.getDeclaredConstructor().newInstance();
+            } catch (Exception ignored) {
+                // 找不到就跳过，尝试下一个包路径
+            }
+        }
+        return null;  // 所有路径都找不到，返回 null
+    }
+
+    /**
+     * 打印所有可用的爬虫列表
+     *
+     * 遍历已知的爬虫名称，尝试加载每个，能加载成功的就标记为可用。
+     * 这个方法在用户输入了不存在的爬虫名时被调用，帮助用户选择正确的名称。
+     */
+    private static void printAvailableSpiders() {
+        System.out.println("\nAvailable spiders:");
+        // 已知的爬虫名称列表（硬编码）
+        // 这些名字对应 com.github.catvod.spider 包下的各个爬虫类
+        String[] knownSpiders = {
+            "AList", "Anime1", "Bili", "Btt", "Ddrk", "Douban", "Ikanbot",
+            "IQIYI", "Jable", "Jianpian", "Kanqiu", "Local", "Market",
+            "MGTV", "MQiTV", "PTT", "Proxy", "Push", "Samba", "SixV",
+            "SP360", "W55Movie", "Wangfei", "WebDAV", "XtreamCode", "YHDM", "Ysj",
+            "AppYsV2", "Alist3", "CaiHong", "Kunyu77", "ShaoEr", "Wogg", "Xinsj", "IkanBot"
+        };
+        for (String s : knownSpiders) {
+            Spider sp = loadSpider(s);  // 尝试加载
+            if (sp != null) {
+                System.out.println("  ✅ " + s);  // 加载成功 = 可用
+            }
+            // 加载失败的不打印，静默跳过
+        }
+    }
+
+    /**
+     * 格式化打印 JSON 数据
+     *
+     * 爬虫返回的都是 JSON 字符串，直接打印可读性很差。
+     * 这个方法会尝试将 JSON 格式化（缩进2空格）后打印，方便阅读。
+     *
+     * 如果 JSON 解析失败（爬虫返回了非标准 JSON），则截取前500字符原样打印。
+     *
+     * @param label  标签名称，如 "homeContent"，用于标识这是哪一步的输出
+     * @param json   爬虫返回的 JSON 字符串
+     */
+    private static void printJson(String label, String json) {
+        System.out.println("  📋 " + label + ":");
+        if (json == null || json.isEmpty()) {
+            System.out.println("    (返回为空，测试终止)");  // 爬虫返回空结果
+            return;
+        }
+        try {
+            // 先尝试解析为 JSONObject（最常见的情况）
+            JSONObject obj = new JSONObject(new String(json));
+            System.out.println("    " + obj.toString(2));  // toString(2) = 缩进2空格的格式化输出
+        } catch (Exception e) {
+            try {
+                // 如果不是 JSONObject，尝试解析为 JSONArray
+                JSONArray arr = new JSONArray(new String(json));
+                System.out.println("    " + arr.toString(2));
+            } catch (Exception e2) {
+                // 都不是合法 JSON，截取前500字符原样打印
+                System.out.println("    " + json.substring(0, Math.min(json.length(), 500)));
+            }
+        }
+    }
+}

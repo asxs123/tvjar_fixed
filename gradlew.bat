@@ -26,6 +26,7 @@ if "%OS%"=="Windows_NT" setlocal
 
 set DIRNAME=%~dp0
 if "%DIRNAME%" == "" set DIRNAME=.
+@rem This is normally unused
 set APP_BASE_NAME=%~n0
 set APP_HOME=%DIRNAME%
 
@@ -36,16 +37,16 @@ for %%i in ("%APP_HOME%") do set APP_HOME=%%~fi
 set DEFAULT_JVM_OPTS="-Xmx64m" "-Xms64m"
 
 @rem ============================================================
-@rem  вт╤╞╪Л╡БоНд©дз╠Цп╞й╫ JDK (╡╩пч╦до╣мЁ╩╥╬Ё)
+@rem  Х┤╙Е┼╗Фё─Ф╣▀И║╧Г⌡╝Е├┘Д╬©Ф░╨Е╪▐ JDK (Д╦█Д©╝Ф■╧ГЁ╩Г╩÷Г▌╞Е╒┐)
 @rem ============================================================
 
-@rem ╪Л╡И jdk ╦Ыд©б╪обйг╥Ясп bin\java.exe
+@rem rem Фё─Ф÷╔ jdk Ф═╧Г⌡╝Е╫∙Д╦▀Ф≤╞Е░╕Ф°┴ bin\java.exe
 if exist "%APP_HOME%jdk\bin\java.exe" (
     set JAVA_HOME=%APP_HOME%jdk
     goto findJavaFromJavaHome
 )
 
-@rem и╗цХ jdk/jdk* д©б╪
+@rem Ф┴╚Ф▐▐ jdk/jdk* Г⌡╝Е╫∙
 for /d %%d in ("%APP_HOME%jdk\jdk*") do (
     if exist "%%d\bin\java.exe" (
         set JAVA_HOME=%%d
@@ -60,20 +61,16 @@ if defined JAVA_HOME goto findJavaFromJavaHome
 @rem Find java.exe in PATH
 set JAVA_EXE=java.exe
 %JAVA_EXE% -version >NUL 2>&1
-if %ERRORLEVEL% equ 0 goto execute
+if "%ERRORLEVEL%" == "0" goto execute
 
 echo.
 echo ================================================================
-echo   н╢ур╣╫ Java ╩╥╬Ёё║
+echo   Ф°╙Ф┴╬Е┬╟ Java Г▌╞Е╒┐О╪│
 echo ================================================================
 echo.
-echo   гКохткпп╟╡в╟╫е╠╬обтьоНд©в╗сц JDK:
-echo     python setup_jdk.py
+echo   Х╞╥Е┘┬Е╝┴Хё┘ Java Г▌╞Е╒┐
 echo.
-echo   ╩Рйж╤╞╟╡в╟ JDK:
-echo     1. ╢Р©╙ https://adoptium.net/releases.html
-echo     2. обть Temurin 21 LTS / Windows x64 / JDK
-echo     3. ╫Бя╧╣╫ jdk\ д©б╪об
+echo   Ф┬√Ф┴▀Е┼╗Д╦▀Х╫╫JDKЕ╧╤Е╟├Е┘╤Х╖ёЕ▌▀Е┬╟jdk\ Г⌡╝Е╫∙Д╦▀
 echo.
 
 goto fail

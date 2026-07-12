@@ -45,14 +45,12 @@ public class YHDM extends Spider {
     }
 
     @Override
-    public void init(Context context, String extend) throws Exception {
-
+    public void init(Context context, String extend) {
         if (!extend.isEmpty()) siteUrl = extend;
     }
 
     @Override
-    public String homeContent(boolean filter) throws Exception {
-
+    public String homeContent(boolean filter) {
         List<Class> classes = new ArrayList<>();
         List<String> typeIds = Arrays.asList("guochandongman", "ribendongman", "dongmandianying", "omeidongman");
         List<String> typeNames = Arrays.asList("国产动漫", "日本动漫", "动漫电影", "欧美动漫");
@@ -71,8 +69,7 @@ public class YHDM extends Spider {
     }
 
     @Override
-    public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) throws Exception {
-
+    public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) {
         String cateUrl = siteUrl + String.format("/type/%s-%s.html", tid, pg);
         Document doc = Jsoup.parse(OkHttp.string(cateUrl, getHeader()));
         List<Vod> list = new ArrayList<>();
@@ -88,8 +85,7 @@ public class YHDM extends Spider {
     }
 
     @Override
-    public String detailContent(List<String> ids) throws Exception {
-
+    public String detailContent(List<String> ids) {
         String detailUrl = siteUrl + ids.get(0);
         Document doc = Jsoup.parse(OkHttp.string(detailUrl, getHeader()));
         Elements sources = doc.select(".myui-content__list.sort-list");
@@ -128,8 +124,7 @@ public class YHDM extends Spider {
     }
 
     @Override
-    public String searchContent(String key, boolean quick) throws Exception {
-
+    public String searchContent(String key, boolean quick) {
         String searchUrl = siteUrl + "/search/" + Uri.encode(key) + "-------------.html";
         Document doc = Jsoup.parse(OkHttp.string(searchUrl, getHeader()));
         List<Vod> list = new ArrayList<>();

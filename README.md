@@ -28,6 +28,7 @@ python setup_jdk.py
 
 > 这会自动下载 JDK 21 到项目 `jdk\` 目录下（约 195MB）。
 > **不会修改你的系统环境**，仅本项目可用。
+> 系统已有JDK环境的可以忽略此步骤。
 
 如果 `python` 不可用，试试 `python3` 或 `py`：
 ```cmd
@@ -174,24 +175,6 @@ public class MySpider extends Spider {
     // 实现其他方法...
 }
 ```
-
----
-
-## 📦 可用 Spider 列表（37个）
-
-| Spider | 来源 | 说明 | Extend 示例 |
-|--------|------|------|-------------|
-| `AppYsV2` | 项目二 | 影视源 V2 | `http://xxx.com/api.php/app/` |
-| `Alist3` | 项目二 | AList 网盘 | JSON 配置 |
-| `CaiHong` | 项目二 | 彩虹影视 | API 地址 |
-| `Kunyu77` | 项目二 | 鲸鱼影视 | API 地址 |
-| `Wogg` | 项目二 | Wogg | API 地址 |
-| `Douban` | 项目一 | 豆瓣 | JSON 配置 |
-| `Bili` | 项目一 | 哔哩哔哩 | Cookie |
-| `IQIYI` | 项目一 | 爱奇艺 | - |
-| `MGTV` | 项目一 | 芒果TV | - |
-| `YHDM` | 项目一 | 樱花动漫 | - |
-| ... | | 共 37 个 | |
 
 ---
 

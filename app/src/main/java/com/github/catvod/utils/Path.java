@@ -2,7 +2,7 @@ package com.github.catvod.utils;
 
 import android.os.Environment;
 
-
+import androidx.annotation.Nullable;
 
 import com.github.catvod.crawler.SpiderDebug;
 
@@ -121,7 +121,7 @@ public class Path {
         });
     }
 
-    public static List<File> list(File dir) {
+    public static List<File> list(@Nullable File dir) {
         if (dir == null) return new ArrayList<>();
         File[] files = dir.listFiles();
         if (files != null) sort(files);

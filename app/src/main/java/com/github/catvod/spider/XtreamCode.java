@@ -22,15 +22,13 @@ public class XtreamCode extends Spider {
     private Config config;
 
     @Override
-    public void init(Context context, String extend) throws Exception {
-
+    public void init(Context context, String extend) {
         config = Config.objectFrom(extend);
         groups = new ArrayList<>();
     }
 
     @Override
-    public String liveContent(String url) throws Exception {
-
+    public String liveContent(String url) {
         config.setUrl(url);
         setChannel();
         setNumber();

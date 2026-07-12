@@ -1,6 +1,8 @@
 package android.text;
 
-import java.util.Collection;
+import java.util.Arrays;
+
+// import java.util.Collection;
 
 public class TextUtils {
     public static boolean isEmpty(CharSequence str) {
@@ -19,5 +21,9 @@ public class TextUtils {
             sb.append(token);
         }
         return sb.toString();
+    }
+
+    public static String join(CharSequence delimiter, Object[] tokens) {
+        return join(delimiter, Arrays.asList(tokens));
     }
 }

@@ -49,17 +49,13 @@ public class Douban extends Spider {
         String recommendUrl = "http://api.douban.com/api/v2/subject_collection/subject_real_time_hotest/items" + apikey;
         JSONObject jsonObject = new JSONObject(OkHttp.string(recommendUrl, getHeader()));
         JSONArray items = jsonObject.optJSONArray("subject_collection_items");
-        com.google.gson.JsonElement filterJson = null;
-        if (filter && extend != null && !extend.isEmpty()) {
-            try { filterJson = Json.parse(OkHttp.string(extend)); } catch (Exception ignored) {}
-        }
-        return Result.string(classes, parseVodListFromJSONArray(items), filterJson);
+        return Result.string(classes, parseVodListFromJSONArray(items), filter ? Json.parse(OkHttp.string(extend)) : null);
     }
 
     @Override
     public String categoryContent(String tid, String pg, boolean filter, HashMap<String, String> extend) throws Exception {
         String sort = extend.get("sort") == null ? "T" : extend.get("sort");
-        String tags = URLEncoder.encode(getTags(extend));
+        String tags = URLEncoder.encode(getTags(extend), "UTF-8");
         int start = (Integer.parseInt(pg) - 1) * 20;
         String cateUrl;
         String itemKey = "items";
@@ -67,7 +63,7 @@ public class Douban extends Spider {
             case "hot_gaia":
                 sort = extend.get("sort") == null ? "recommend" : extend.get("sort");
                 String area = extend.get("area") == null ? "全部" : extend.get("area");
-                sort = sort + "&area=" + URLEncoder.encode(area);
+                sort = sort + "&area=" + URLEncoder.encode(area, "UTF-8");
                 cateUrl = siteUrl + "/movie/hot_gaia" + apikey + "&sort=" + sort + "&start=" + start + "&count=20";
                 break;
             case "tv_hot":
